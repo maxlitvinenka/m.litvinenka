@@ -2,19 +2,26 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>MAX Token Mint</title>
+  <title>Mint MAX Token</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>MAX Token Mint</h1>
-  <button onclick="connectWallet()">Connect Wallet</button>
-  <button onclick="mintTokens()">Mint Tokens</button>
-  <p id="status"></p>
+  <div class="container">
+    <div class="card">
+      <h1>🚀 Mint MAX Token</h1>
+      <p>Claim your $MAX ERC-20 token on-chain</p>
+      <button onclick="connectWallet()">🔗 Connect Wallet</button>
+      <button onclick="mintTokens()">🪙 Mint</button>
+      <p id="status"></p>
+    </div>
+  </div>
 
   <script src="abi.js"></script>
   <script>
     let account;
-    const contractAddress = "YOUR_DEPLOYED_CONTRACT_ADDRESS_HERE"; // 👈 replace with real one
+    const contractAddress = "YOUR_CONTRACT_ADDRESS_HERE"; // 👈 Replace with your deployed contract address
     const web3 = new Web3(window.ethereum);
     const contract = new web3.eth.Contract(abi, contractAddress);
 
@@ -26,10 +33,10 @@
 
     async function mintTokens() {
       try {
-        await contract.methods.mint().send({ from: account });
-        document.getElementById("status").innerText = "Mint successful!";
+        await contract.methods.mintTo(account, "1000000000000000000").send({ from: account }); // 1 token (1 * 10^18)
+        document.getElementById("status").innerText = "✅ Minted 1 MAX!";
       } catch (err) {
-        document.getElementById("status").innerText = "Mint failed: " + err.message;
+        document.getElementById("status").innerText = "❌ Error: " + err.message;
       }
     }
   </script>
