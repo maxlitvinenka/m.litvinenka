@@ -2,41 +2,65 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Mint MAX Token</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+  <title>Mint MAX Token</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
 </head>
 <body>
   <div class="container">
     <div class="card">
-      <h1>🚀 Mint MAX Token</h1>
-      <p>Claim your $MAX ERC-20 token on-chain</p>
+      <h1>💸 Mint MAX</h1>
+      <p>Claim your free $MAX tokens instantly</p>
       <button onclick="connectWallet()">🔗 Connect Wallet</button>
-      <button onclick="mintTokens()">🪙 Mint</button>
+      <div id="wallet"></div>
+      <button onclick="mintTokens()">🪙 Mint 1 MAX</button>
+      <div id="balance"></div>
       <p id="status"></p>
     </div>
   </div>
 
   <script src="abi.js"></script>
   <script>
-    let account;
-    const contractAddress = "0x38CB8bf1419fc1C755AEF337Dee52272C33622F1"; // 👈 Replace with your deployed contract address
+    const contractAddress = "0xYOUR_CONTRACT_ADDRESS_HERE"; // ✅ Replace with your actual address
     const web3 = new Web3(window.ethereum);
     const contract = new web3.eth.Contract(abi, contractAddress);
 
+    let account;
+
     async function connectWallet() {
-      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-      account = accounts[0];
-      document.getElementById("status").innerText = "Connected: " + account;
+      try {
+        const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+        account = accounts[0];
+        document.getElementById("wallet").innerText = "Wallet: " + account;
+        getBalance();
+      } catch (error) {
+        document.getElementById("status").innerText = "❌ Wallet connection failed";
+      }
     }
 
     async function mintTokens() {
+      if (!account) {
+        document.getElementById("status").innerText = "⚠️ Please connect your wallet first.";
+        return;
+      }
+
       try {
-        await contract.methods.mintTo(account, "1000000000000000000").send({ from: account }); // 1 token (1 * 10^18)
-        document.getElementById("status").innerText = "✅ Minted 1 MAX!";
-      } catch (err) {
-        document.getElementById("status").innerText = "❌ Error: " + err.message;
+        await contract.methods.mintTo(account, "1000000000000000000").send({ from: account }); // 1 token
+        document.getElementById("status").innerText = "✅ 1 MAX token minted!";
+        getBalance();
+      } catch (error) {
+        document.getElementById("status").innerText = "❌ Minting failed: " + error.message;
+      }
+    }
+
+    async function getBalance() {
+      try {
+        const balance = await contract.methods.balanceOf(account).call();
+        const readable = web3.utils.fromWei(balance, "ether");
+        document.getElementById("balance").innerText = `Your Balance: ${readable} MAX`;
+      } catch (error) {
+        document.getElementById("balance").innerText = "❌ Failed to fetch balance";
       }
     }
   </script>
